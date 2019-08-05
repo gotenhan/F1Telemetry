@@ -1,0 +1,73 @@
+﻿<Window x:Class="F1Telemetry.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:F1Telemetry"
+        xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=System"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <Style TargetType="ItemsControl" x:Key="LogViewerStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <ScrollViewer CanContentScroll="True">
+                            <ItemsPresenter/>
+                        </ScrollViewer>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Setter Property="ItemsPanel">
+                <Setter.Value>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel IsItemsHost="True"/>
+                    </ItemsPanelTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <DataTemplate DataType="{x:Type local:LogEntry}">
+            <Grid IsSharedSizeScope="True">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition SharedSizeGroup="Date" Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="{Binding DateTime}" Grid.Column="0"
+                       FontWeight="Bold" Margin="5,0,5,0"/>
+
+                <TextBlock Text="{Binding Message}" Grid.Column="1"
+                       TextWrapping="Wrap"/>
+            </Grid>
+        </DataTemplate>
+
+    <local:IntToStringConverter x:Key="IntToStringConverter"></local:IntToStringConverter>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <StackPanel Margin="2,2,2,2"  Orientation="Horizontal" Grid.Row="0" >
+            <TextBlock  Margin="5,5,5,5" VerticalAlignment="Center">Port:</TextBlock>
+            <TextBox Text="{Binding Port, Mode=TwoWay, Converter={StaticResource IntToStringConverter}}" Margin="5,5,5,5" Padding="5,5,5,5" Width="100" ></TextBox>
+            <Button Margin="5,5,5,5" Padding="5,5,5,5" Command="{Binding StartListeningCommand}">
+                <TextBlock>Start listening</TextBlock>
+            </Button>
+            <Button Margin="5,5,5,5" Padding="5,5,5,5" Command="{Binding StopListeningCommand}">
+                <TextBlock>Stop listening</TextBlock>
+            </Button>
+        </StackPanel>
+        <DockPanel Grid.Row="1">
+            <TextBlock Text="{Binding LogEntries.Count, StringFormat='{}{0} Items'}"
+               DockPanel.Dock="Top"/>
+
+            <ItemsControl ItemsSource="{Binding LogEntries}" Style="{StaticResource LogViewerStyle}" BorderBrush="Red" BorderThickness="5" MinHeight="200">
+            </ItemsControl>
+        </DockPanel>
+    </Grid>
+</Window>
