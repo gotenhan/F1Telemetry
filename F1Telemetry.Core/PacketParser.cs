@@ -145,6 +145,7 @@ namespace F1Telemetry.Core
             catch (Exception ex)
             {
                 Logger.Error("Exception occured while parsing messages", ex);
+                throw;
             }
             finally
             {

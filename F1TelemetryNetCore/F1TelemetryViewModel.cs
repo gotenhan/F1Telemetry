@@ -10,6 +10,8 @@ using System.Windows;
 using System.Windows.Input;
 using F1Telemetry.Core;
 using F1TelemetryNetCore.Annotations;
+using log4net;
+using log4net.Repository.Hierarchy;
 using Microsoft.VisualBasic;
 using Microsoft.Win32;
 using Prism.Commands;
@@ -19,6 +21,8 @@ namespace F1TelemetryNetCore
 {
     class F1TelemetryViewModel: INotifyPropertyChanged
     {
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private UdpListener _udpListener;
         private PacketParser _parser;
         private CancellationTokenSource _fileParsingCts;
@@ -80,7 +84,13 @@ namespace F1TelemetryNetCore
                 _pipe = new Pipe();
                 _udpListener.StartListening(_pipe.Writer);
                 _udpListener.OnStopListening += OnListenerStopped;
-                _parser.ReadMessages(_pipe.Reader, CancellationToken.None);
+
+                Task.Factory.StartNew(async () => await _parser.ReadMessages(_pipe.Reader, CancellationToken.None),
+                    TaskCreationOptions.LongRunning).Unwrap().ContinueWith(
+                    (t, _) => { Logger.Error("Caught reader error in VM", t.Exception); }
+                    ,CancellationToken.None,
+                    TaskContinuationOptions.OnlyOnFaulted);
+
                 StartListeningCommand?.RaiseCanExecuteChanged();
                 StopListeningCommand?.RaiseCanExecuteChanged();
             }
@@ -143,16 +153,11 @@ namespace F1TelemetryNetCore
                 _fileParsingCts = new CancellationTokenSource();
                 try
                 {
-                    using (var fileStream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                    {
-                        var pipe = new Pipe();
-                        var readerTask = _parser.ReadMessages(pipe.Reader, _fileParsingCts.Token);
-                        var writerTask = fileStream.CopyToAsync(pipe.Writer, _fileParsingCts.Token);
-                        await writerTask.ConfigureAwait(false);
-                        pipe.Writer.Complete();
-                        await readerTask.ConfigureAwait(false);
-                        await Task.Yield();
-                    }
+                    var pipe = new Pipe();
+                    var parserTask = _parser.ReadMessages(pipe.Reader, _fileParsingCts.Token);
+                    var fileReaderTask = FileReader.ReadFromFile(path, pipe.Writer, _fileParsingCts.Token);
+                    await parserTask;
+                    await fileReaderTask;
                 }
                 finally
                 {
