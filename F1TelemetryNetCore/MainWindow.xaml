@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:F1TelemetryNetCore"
-        xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=System"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
@@ -27,23 +26,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
-        <DataTemplate DataType="{x:Type local:LogEntry}">
-            <Grid IsSharedSizeScope="True">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition SharedSizeGroup="Date" Width="Auto"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-
-                <TextBlock Text="{Binding DateTime}" Grid.Column="0"
-                       FontWeight="Bold" Margin="5,0,5,0"/>
-
-                <TextBlock Text="{Binding Message}" Grid.Column="1"
-                       TextWrapping="Wrap"/>
-            </Grid>
-        </DataTemplate>
-
-    <local:IntToStringConverter x:Key="IntToStringConverter"></local:IntToStringConverter>
+        <local:IntToStringConverter x:Key="IntToStringConverter"></local:IntToStringConverter>
     </Window.Resources>
 
     <Grid>
@@ -61,13 +44,13 @@
             <Button Margin="5,5,5,5" Padding="5,5,5,5" Command="{Binding StopListeningCommand}">
                 <TextBlock>Stop listening</TextBlock>
             </Button>
+            <TextBox Text="{Binding FilePath}" Margin="5,5,5,5" Padding="5,5,5,5" Width="100" ></TextBox>
+            <Button Margin="5,5,5,5" Padding="5,5,5,5" Command="{Binding SelectFileCommand}">
+                <TextBlock>SelectFile</TextBlock>
+            </Button>
+            <Button Margin="5,5,5,5" Padding="5,5,5,5" Command="{Binding ReadFromFileCommand}">
+                <TextBlock>Read from file</TextBlock>
+            </Button>
         </StackPanel>
-        <DockPanel Grid.Row="1">
-            <TextBlock Text="{Binding LogEntries.Count, StringFormat='{}{0} Items'}"
-               DockPanel.Dock="Top"/>
-
-            <ItemsControl ItemsSource="{Binding LogEntries}" Style="{StaticResource LogViewerStyle}" BorderBrush="Red" BorderThickness="5" MinHeight="200">
-            </ItemsControl>
-        </DockPanel>
     </Grid>
 </Window>
