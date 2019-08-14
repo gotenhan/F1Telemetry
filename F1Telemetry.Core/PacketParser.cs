@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using F1Telemetry.Core.Packets;
 using F1TelemetryNetCore.Packets;
 using log4net;
 
@@ -12,6 +13,7 @@ namespace F1Telemetry.Core
 {
     public class PacketParser
     {
+        private readonly IPacketHandler _packetHandler;
         private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public static bool ValidatePacketHeaderAndLength(Span<byte> buffer)
@@ -74,6 +76,11 @@ namespace F1Telemetry.Core
             }
         }
 
+        public PacketParser(IPacketHandler packetHandler)
+        {
+            _packetHandler = packetHandler;
+        }
+
         public async Task ReadMessages(PipeReader reader, CancellationToken ct)
         {
             try
@@ -95,28 +102,34 @@ namespace F1Telemetry.Core
                         switch (header.PacketId)
                         {
                             case PacketHeader.PacketType.Session:
-                                ReadMessageAndAdvanceBuffer<PacketSessionData>();
+                                if (ReadMessageAndAdvanceBuffer<PacketSessionData>(out var pSessionData))
+                                {
+                                    _packetHandler.OnPacketSessionData(ref pSessionData);
+                                }
                                 break;
                             case PacketHeader.PacketType.CarSetups:
-                                ReadMessageAndAdvanceBuffer<PacketCarSetupData>();
+                                ReadMessageAndAdvanceBuffer<PacketCarSetupData>(out var pCarSetup);
                                 break;
                             case PacketHeader.PacketType.CarStatus:
-                                ReadMessageAndAdvanceBuffer<PacketCarStatusData>();
+                                ReadMessageAndAdvanceBuffer<PacketCarStatusData>(out var pCarStatus);
                                 break;
                             case PacketHeader.PacketType.CarTelemetry:
-                                ReadMessageAndAdvanceBuffer<PacketCarTelemetryData>();
+                                ReadMessageAndAdvanceBuffer<PacketCarTelemetryData>(out var pTelemetry);
                                 break;
                             case PacketHeader.PacketType.Event:
-                                ReadMessageAndAdvanceBuffer<PacketEventData>();
+                                if (ReadMessageAndAdvanceBuffer<PacketEventData>(out var pEvent))
+                                {
+                                    _packetHandler.OnPacketEventData(ref pEvent);
+                                }
                                 break;
                             case PacketHeader.PacketType.LapData:
-                                ReadMessageAndAdvanceBuffer<PacketLapData>();
+                                ReadMessageAndAdvanceBuffer<PacketLapData>(out var pLap);
                                 break;
                             case PacketHeader.PacketType.Motion:
-                                ReadMessageAndAdvanceBuffer<PacketMotionData>();
+                                ReadMessageAndAdvanceBuffer<PacketMotionData>(out var pMotion);
                                 break;
                             case PacketHeader.PacketType.Participants:
-                                ReadMessageAndAdvanceBuffer<PacketParticipantsData>();
+                                ReadMessageAndAdvanceBuffer<PacketParticipantsData>(out var pParticipants);
                                 break;
                             default:
                                 throw new InvalidOperationException(
@@ -124,12 +137,12 @@ namespace F1Telemetry.Core
                         }
                     }
 
-                    void ReadMessageAndAdvanceBuffer<T>() where T : struct
+                    bool ReadMessageAndAdvanceBuffer<T>(out T sessionData) where T : struct
                     {
-                        if (!TryReadFromBuffer<T>(msg.Buffer, out T sessionData, out int bytesRead))
+                        if (!TryReadFromBuffer<T>(msg.Buffer, out sessionData, out int bytesRead))
                         {
                             reader.AdvanceTo(msg.Buffer.Start, msg.Buffer.End);
-                            return;
+                            return false;
                         }
 
                         if (Logger.IsDebugEnabled)
@@ -138,7 +151,7 @@ namespace F1Telemetry.Core
                         }
 
                         reader.AdvanceTo(msg.Buffer.GetPosition(bytesRead));
-                        return;
+                        return true;
                     }
                 }
             }

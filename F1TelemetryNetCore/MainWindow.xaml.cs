@@ -10,7 +10,6 @@ namespace F1TelemetryNetCore
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new F1TelemetryViewModel();
         }
     }
 }

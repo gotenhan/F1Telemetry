@@ -3,7 +3,7 @@
 namespace F1TelemetryNetCore.Packets
 {
     [StructLayout(LayoutKind.Sequential, Pack=1)]
-    struct PacketHeader
+    public struct PacketHeader
     {
         public ushort PacketFormat;
         public byte PacketVersion;

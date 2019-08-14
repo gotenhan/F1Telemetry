@@ -28,6 +28,9 @@
         </Style>
         <local:IntToStringConverter x:Key="IntToStringConverter"></local:IntToStringConverter>
     </Window.Resources>
+    <Window.DataContext>
+        <local:F1TelemetryViewModel></local:F1TelemetryViewModel>
+    </Window.DataContext>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -35,7 +38,12 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <StackPanel Margin="2,2,2,2"  Orientation="Horizontal" Grid.Row="0" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Margin="2,2,2,2"  Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" >
             <TextBlock  Margin="5,5,5,5" VerticalAlignment="Center">Port:</TextBlock>
             <TextBox Text="{Binding Port, Mode=TwoWay, Converter={StaticResource IntToStringConverter}}" Margin="5,5,5,5" Padding="5,5,5,5" Width="100" ></TextBox>
             <Button Margin="5,5,5,5" Padding="5,5,5,5" Command="{Binding StartListeningCommand}">
@@ -52,5 +60,37 @@
                 <TextBlock>Read from file</TextBlock>
             </Button>
         </StackPanel>
+
+        <Border BorderThickness="2" BorderBrush="Black" Grid.Row="1" Grid.Column="0">
+            <ListView ItemsSource="{Binding Sessions}" Name="SessionList">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderThickness="1" BorderBrush="Blue">
+                            <StackPanel>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0} ({1})">
+                                            <Binding Path="Track.Track"></Binding>
+                                            <Binding Path="SessionId"></Binding>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0} - {1}">
+                                            <Binding Path="SessionStarted"></Binding>
+                                            <Binding Path="SessionEnded"></Binding>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Border>
+        <Border BorderThickness="2" BorderBrush="Black" Grid.Row="1" Grid.Column="1">
+            <local:SessionInfoControl DataContext="{Binding ElementName=SessionList, Path=SelectedItem}"></local:SessionInfoControl>
+        </Border>
     </Grid>
 </Window>

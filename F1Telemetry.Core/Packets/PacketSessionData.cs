@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace F1TelemetryNetCore.Packets
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct PacketSessionData
+    public unsafe struct PacketSessionData
     {
         private const int MarshalZonesBufferSize = 21 * MarshalZone.Size;
 
@@ -41,7 +41,7 @@ namespace F1TelemetryNetCore.Packets
     };
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct MarshalZone
+    public struct MarshalZone
     {
         public const int Size = sizeof(float) + sizeof(sbyte);
 

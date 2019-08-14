@@ -7,7 +7,7 @@ using System.Text;
 namespace F1TelemetryNetCore.Packets
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct PacketEventData
+    public unsafe struct PacketEventData
     {
         private static Encoding Encoding = System.Text.Encoding.UTF8;
 

@@ -3,12 +3,16 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Pipelines;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Reactive.Threading;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using F1Telemetry.Core;
+using F1Telemetry.Core.Observables;
 using F1TelemetryNetCore.Annotations;
 using log4net;
 using log4net.Repository.Hierarchy;
@@ -36,15 +40,24 @@ namespace F1TelemetryNetCore
         public F1TelemetryViewModel()
         {
             Port = 20777;
-            FilePath = @"C:\Users\adrian\Moje projekty\F1Telemetry\TestData\AustraliaLameMe.rawbytes";
+            FilePath = @"C:\Users\adrian\Moje projekty\F1Telemetry\TestData\Australia3Laps.rawbytes";
 
             StartListeningCommand = new DelegateCommand(StartListening, CanStartListening);
             StopListeningCommand = new DelegateCommand(StopListening, CanStopListening);
             SelectFileCommand = new DelegateCommand(SelectFile);
             ReadFromFileCommand = new DelegateCommand(ReadFromFile, () => !IsReading).ObservesProperty(() => IsReading);
             StopReadingCommand = new DelegateCommand(ReadFromFile, () => IsReading).ObservesProperty(() => IsReading);
-            
-            _parser = new PacketParser();
+
+            Sessions = new ObservableCollection<SessionViewModel>();
+
+            var packetHandler = new PacketHandlerObservable();
+            packetHandler.Events
+                .ObserveOn(SynchronizationContext.Current)
+                .GroupBy(e => e.SessionId)
+                .Select(sessionEvents => new SessionViewModel(sessionEvents.Key, sessionEvents))
+                .Subscribe(svm => Sessions.Add(svm));
+
+            _parser = new PacketParser(packetHandler);
             _dialog = new OpenFileDialog();
             _dialog.Multiselect = false;
             _dialog.CheckFileExists = true;
@@ -56,6 +69,8 @@ namespace F1TelemetryNetCore
 
         public DelegateCommand StartListeningCommand { get; set; }
         public DelegateCommand StopListeningCommand { get; set; }
+
+        public ObservableCollection<SessionViewModel> Sessions { get; }
 
         public int Port
         {
