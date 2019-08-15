@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace F1TelemetryNetCore.Packets
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct PacketMotionData
+    public unsafe struct PacketMotionData
     {
         public PacketHeader Header;               // Header
 
@@ -55,7 +55,7 @@ namespace F1TelemetryNetCore.Packets
     };
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct CarMotionData
+    public struct CarMotionData
     {
         public const int Size = 12 * sizeof(float) + 6 * sizeof(short);
 

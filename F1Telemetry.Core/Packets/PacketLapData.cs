@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace F1TelemetryNetCore.Packets
 {
-    unsafe struct PacketLapData
+    public unsafe struct PacketLapData
     {
         public PacketHeader Header; // Header
 
@@ -19,7 +19,7 @@ namespace F1TelemetryNetCore.Packets
         }
     }
 
-    struct LapData
+    public struct LapData
     {
         public const int Size = 8 * sizeof(float) + 9;
 

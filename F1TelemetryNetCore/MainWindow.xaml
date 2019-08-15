@@ -59,6 +59,9 @@
             <Button Margin="5,5,5,5" Padding="5,5,5,5" Command="{Binding ReadFromFileCommand}">
                 <TextBlock>Read from file</TextBlock>
             </Button>
+            <Button Margin="5,5,5,5" Padding="5,5,5,5" Command="{Binding OpenLogFileCommand}">
+                <TextBlock>Open log file</TextBlock>
+            </Button>
         </StackPanel>
 
         <Border BorderThickness="2" BorderBrush="Black" Grid.Row="1" Grid.Column="0">

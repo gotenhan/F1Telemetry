@@ -9,13 +9,13 @@ using F1TelemetryNetCore.Packets;
 
 namespace F1Telemetry.Core.Observables
 {
-    public class PacketHandlerObservable: IPacketHandler
+    public class ObservablePacketHandler: IPacketHandler
     {
         private EventHandler<Event> _newPacketRead;
         private readonly IObservable<Event> _events;
         private EventLoopScheduler _scheduler;
 
-        public PacketHandlerObservable()
+        public ObservablePacketHandler()
         {
             _scheduler = new EventLoopScheduler();
             _events = Observable
@@ -24,7 +24,9 @@ namespace F1Telemetry.Core.Observables
                 .Select(ep => ep.EventArgs);
         }
 
-        void IPacketHandler.OnPacketEventData(ref PacketEventData pEventData)
+        public IObservable<Event> Events => _events;
+
+        public void OnPacketEventData(ref PacketEventData pEventData, PacketSource source)
         {
             var sc = pEventData.EventStringCode;
             var sty = (sc switch
@@ -41,11 +43,31 @@ namespace F1Telemetry.Core.Observables
 
         }
 
-        void IPacketHandler.OnStop()
+        public void OnPacketCarSetupData(ref PacketCarSetupData pCarSetup, PacketSource packetSource)
         {
         }
 
-        void IPacketHandler.OnPacketSessionData(ref PacketSessionData pSessionData)
+        public void OnPacketCarStatusData(ref PacketCarStatusData pCarStatus, PacketSource packetSource)
+        {
+        }
+
+        public void OnPacketCarTelemetryData(ref PacketCarTelemetryData pTelemetry, PacketSource packetSource)
+        {
+        }
+
+        public void OnPacketLapData(ref PacketLapData pLap, PacketSource packetSource)
+        {
+        }
+
+        public void OnPacketMotionData(ref PacketMotionData pMotion, PacketSource packetSource)
+        {
+        }
+
+        public void OnPacketParticipantsData(ref PacketParticipantsData pParticipants, PacketSource packetSource)
+        {
+        }
+
+        public void OnPacketSessionData(ref PacketSessionData pSessionData, PacketSource _)
         {
             var timestamp = DateTime.Now;
             var sessionId = pSessionData.Header.SessionUID;
@@ -64,7 +86,5 @@ namespace F1Telemetry.Core.Observables
             var sessionData = new Session(state, weather, trackInfo, sessionId, timestamp, sessionTime);
             _newPacketRead?.Invoke(this, sessionData);
         }
-
-        public IObservable<Event> Events => _events;
     }
 }

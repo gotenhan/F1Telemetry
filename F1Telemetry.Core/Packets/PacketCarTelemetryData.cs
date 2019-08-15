@@ -7,7 +7,7 @@ using System.Text;
 namespace F1TelemetryNetCore.Packets
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct PacketCarTelemetryData
+    public unsafe struct PacketCarTelemetryData
     {
         public PacketHeader Header;                // Header
 
@@ -24,7 +24,7 @@ namespace F1TelemetryNetCore.Packets
     };
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct CarTelemetryData
+    public unsafe struct CarTelemetryData
     {
         public const int Size = 15 * sizeof(ushort) + 5 * sizeof(byte) + 2 * sizeof(sbyte) + 4 * sizeof(float);
 

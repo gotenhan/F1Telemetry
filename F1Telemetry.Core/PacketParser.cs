@@ -81,7 +81,7 @@ namespace F1Telemetry.Core
             _packetHandler = packetHandler;
         }
 
-        public async Task ReadMessages(PipeReader reader, CancellationToken ct)
+        public async Task ReadMessages(PipeReader reader, PacketSource packetSource, CancellationToken ct = default)
         {
             try
             {
@@ -102,34 +102,52 @@ namespace F1Telemetry.Core
                         switch (header.PacketId)
                         {
                             case PacketHeader.PacketType.Session:
-                                if (ReadMessageAndAdvanceBuffer<PacketSessionData>(out var pSessionData))
+                                if (HandleMessageAndAdvanceBuffer<PacketSessionData>(out var pSessionData))
                                 {
-                                    _packetHandler.OnPacketSessionData(ref pSessionData);
+                                    _packetHandler.OnPacketSessionData(ref pSessionData, packetSource);
                                 }
                                 break;
                             case PacketHeader.PacketType.CarSetups:
-                                ReadMessageAndAdvanceBuffer<PacketCarSetupData>(out var pCarSetup);
+                                HandleMessageAndAdvanceBuffer<PacketCarSetupData>(out var pCarSetup);
+                                {
+                                    _packetHandler.OnPacketCarSetupData(ref pCarSetup, packetSource);
+                                }
                                 break;
                             case PacketHeader.PacketType.CarStatus:
-                                ReadMessageAndAdvanceBuffer<PacketCarStatusData>(out var pCarStatus);
+                                HandleMessageAndAdvanceBuffer<PacketCarStatusData>(out var pCarStatus);
+                                {
+                                    _packetHandler.OnPacketCarStatusData(ref pCarStatus, packetSource);
+                                }
                                 break;
                             case PacketHeader.PacketType.CarTelemetry:
-                                ReadMessageAndAdvanceBuffer<PacketCarTelemetryData>(out var pTelemetry);
+                                HandleMessageAndAdvanceBuffer<PacketCarTelemetryData>(out var pTelemetry);
+                                {
+                                    _packetHandler.OnPacketCarTelemetryData(ref pTelemetry, packetSource);
+                                }
                                 break;
                             case PacketHeader.PacketType.Event:
-                                if (ReadMessageAndAdvanceBuffer<PacketEventData>(out var pEvent))
+                                if (HandleMessageAndAdvanceBuffer<PacketEventData>(out var pEvent))
                                 {
-                                    _packetHandler.OnPacketEventData(ref pEvent);
+                                    _packetHandler.OnPacketEventData(ref pEvent, packetSource);
                                 }
                                 break;
                             case PacketHeader.PacketType.LapData:
-                                ReadMessageAndAdvanceBuffer<PacketLapData>(out var pLap);
+                                HandleMessageAndAdvanceBuffer<PacketLapData>(out var pLap);
+                                {
+                                    _packetHandler.OnPacketLapData(ref pLap, packetSource);
+                                }
                                 break;
                             case PacketHeader.PacketType.Motion:
-                                ReadMessageAndAdvanceBuffer<PacketMotionData>(out var pMotion);
+                                HandleMessageAndAdvanceBuffer<PacketMotionData>(out var pMotion);
+                                {
+                                    _packetHandler.OnPacketMotionData(ref pMotion, packetSource);
+                                }
                                 break;
                             case PacketHeader.PacketType.Participants:
-                                ReadMessageAndAdvanceBuffer<PacketParticipantsData>(out var pParticipants);
+                                HandleMessageAndAdvanceBuffer<PacketParticipantsData>(out var pParticipants);
+                                {
+                                    _packetHandler.OnPacketParticipantsData(ref pParticipants, packetSource);
+                                }
                                 break;
                             default:
                                 throw new InvalidOperationException(
@@ -137,7 +155,7 @@ namespace F1Telemetry.Core
                         }
                     }
 
-                    bool ReadMessageAndAdvanceBuffer<T>(out T sessionData) where T : struct
+                    bool HandleMessageAndAdvanceBuffer<T>(out T sessionData) where T : struct
                     {
                         if (!TryReadFromBuffer<T>(msg.Buffer, out sessionData, out int bytesRead))
                         {
