@@ -5,27 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:F1TelemetryNetCore"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="Auto" Width="Auto">
     <Window.Resources>
-        <Style TargetType="ItemsControl" x:Key="LogViewerStyle">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <ScrollViewer CanContentScroll="True">
-                            <ItemsPresenter/>
-                        </ScrollViewer>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-
-            <Setter Property="ItemsPanel">
-                <Setter.Value>
-                    <ItemsPanelTemplate>
-                        <VirtualizingStackPanel IsItemsHost="True"/>
-                    </ItemsPanelTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
         <local:IntToStringConverter x:Key="IntToStringConverter"></local:IntToStringConverter>
     </Window.Resources>
     <Window.DataContext>
@@ -59,6 +40,13 @@
             <Button Margin="5,5,5,5" Padding="5,5,5,5" Command="{Binding ReadFromFileCommand}">
                 <TextBlock>Read from file</TextBlock>
             </Button>
+            <DockPanel>
+                <TextBlock VerticalAlignment="Center">Replay speed: </TextBlock>
+                <CheckBox IsChecked="{Binding ReplayEnabled}" MinWidth="50" Padding="10, 0, 10, 0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ReplaySpeed}" ></TextBlock>
+                </CheckBox>
+                <Slider Width="200" VerticalAlignment="Center" Minimum="0.1" Maximum="10" Delay="100" IsSelectionRangeEnabled="True" Value="{Binding ReplaySpeed}" IsSnapToTickEnabled="True" LargeChange="0.5" SmallChange="0.25" TickPlacement="BottomRight" Ticks="0.1, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 5.0, 10.0"/>
+            </DockPanel>
             <Button Margin="5,5,5,5" Padding="5,5,5,5" Command="{Binding OpenLogFileCommand}">
                 <TextBlock>Open log file</TextBlock>
             </Button>

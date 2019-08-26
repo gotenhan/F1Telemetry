@@ -42,6 +42,8 @@ namespace F1TelemetryNetCore
         private readonly OpenFileDialog _dialog;
         private string _filePath;
         private bool _isReading;
+        private float _replaySpeed;
+        private readonly DelayScale _delayScale = 1.0f;
 
         public F1TelemetryViewModel()
         {
@@ -75,7 +77,9 @@ namespace F1TelemetryNetCore
                 .Subscribe(svm => Sessions.Add(svm));
 
             var fileSavingPacketHandler = new FileWriterPacketHandler();
-            var compositePacketHandler = new CompositePacketHandler(fileSavingPacketHandler, observablePacketHandler);
+            ReplaySpeed = 1.0f;
+            var delayHandler = new DelayPacketHandler(_delayScale);
+            var compositePacketHandler = new CompositePacketHandler(delayHandler, fileSavingPacketHandler, observablePacketHandler);
 
 
             _parser = new PacketParser(compositePacketHandler);
@@ -151,6 +155,24 @@ namespace F1TelemetryNetCore
         public DelegateCommand SelectFileCommand { get; set; }
         public DelegateCommand ReadFromFileCommand { get; set; }
         public DelegateCommand StopReadingCommand { get; set; }
+
+        public float ReplaySpeed
+        {
+            get => _replaySpeed;
+            set
+            {
+                if (value.Equals(_replaySpeed)) return;
+                _replaySpeed = value;
+                _delayScale.Scale = 1.0f/_replaySpeed;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ReplayEnabled
+        {
+            get => _delayScale.Enabled;
+            set => _delayScale.Enabled = value;
+        }
 
         public string FilePath
         {

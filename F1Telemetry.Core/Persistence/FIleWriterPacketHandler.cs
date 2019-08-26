@@ -32,13 +32,11 @@ namespace F1Telemetry.Core.Persistence
 
         public void OnPacketEventData(ref PacketEventData pEventData, PacketSource packetSource)
         {
-/*
             if (packetSource == PacketSource.File)
             {
                 return;
             }
 
-*/
             var sessionId = pEventData.Header.SessionUID;
             if (pEventData.EventStringCode == "SSTA")
             {
@@ -91,12 +89,12 @@ namespace F1Telemetry.Core.Persistence
 
         private void WritePacket<T>(ulong sessionId, ref T packet, PacketSource source) where T : struct
         {
-/*
+
             if (source == PacketSource.File)
             {
                 return;
             }
-*/
+
 
             if (_files.TryGetValue(sessionId, out var stream))
             {
