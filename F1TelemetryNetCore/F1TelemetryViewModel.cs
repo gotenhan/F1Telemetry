@@ -86,7 +86,7 @@ namespace F1TelemetryNetCore
             _dialog = new OpenFileDialog();
             _dialog.Multiselect = false;
             _dialog.CheckFileExists = true;
-            _dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            _dialog.InitialDirectory = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "F1Telemetry");
             _dialog.RestoreDirectory = true;
         }
 
@@ -215,7 +215,10 @@ namespace F1TelemetryNetCore
                 {
                     var pipe = new Pipe();
                     var parserTask = _parser.ReadMessages(pipe.Reader, PacketSource.File, _fileParsingCts.Token);
-                    var fileReaderTask = FileReader.ReadFromFile(path, pipe.Writer, _fileParsingCts.Token);
+                    var fileReaderTask =
+                        path.EndsWith(".gz")
+                            ? FileReader.ReadFromGzippedFile(path, pipe.Writer, _fileParsingCts.Token)
+                            : FileReader.ReadFromFile(path, pipe.Writer, _fileParsingCts.Token);
                     await parserTask;
                     await fileReaderTask;
                 }

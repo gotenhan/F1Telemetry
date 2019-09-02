@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.IO.Compression;
 using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +14,18 @@ namespace F1Telemetry.Core
             {
                 await fileStream.CopyToAsync(writer, ct).ConfigureAwait(false);
                 writer.Complete();
+            }
+        }
+
+        public static async Task ReadFromGzippedFile(string path, PipeWriter writer, CancellationToken ct = default)
+        {
+            using (var fileStream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                using (var ungzipStream = new GZipStream(fileStream, CompressionMode.Decompress))
+                {
+                    await ungzipStream.CopyToAsync(writer, ct).ConfigureAwait(false);
+                    writer.Complete();
+                }
             }
         }
     }
