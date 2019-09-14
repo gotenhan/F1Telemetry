@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace F1Telemetry.Core.Observables
+namespace F1Telemetry.Core.SessionManagement.Events
 {
     public class Event
     {

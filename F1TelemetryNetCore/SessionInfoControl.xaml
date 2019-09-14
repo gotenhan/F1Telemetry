@@ -31,30 +31,72 @@
         <Label Grid.Row="1" Grid.Column="2">End:</Label>
         <TextBlock Text="{Binding SessionEnded}" Grid.Row="1" Grid.Column="3" />
 
-        <Label Grid.Row="2" Grid.Column="0">Weather:</Label>
-        <TextBlock Text="{Binding CurrentWeather.Weather}" Grid.Row="2" Grid.Column="1" />
-        <Label Grid.Row="2" Grid.Column="2">Track temperature:</Label>
-        <TextBlock Text="{Binding CurrentWeather.TrackTemperature}" Grid.Row="2" Grid.Column="3" />
-        <Label Grid.Row="3" Grid.Column="2">Air temperature:</Label>
-        <TextBlock Text="{Binding CurrentWeather.AirTemperature}" Grid.Row="3" Grid.Column="3" />
-
-        <Label Grid.Row="4" Grid.Column="0">Track:</Label>
-        <TextBlock Text="{Binding Track.Track}" Grid.Row="4" Grid.Column="1" />
-        <Label Grid.Row="4" Grid.Column="2">Length:</Label>
-        <TextBlock Text="{Binding Track.Length}" Grid.Row="4" Grid.Column="3" />
-
-        <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Vertical">
+        <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
-                <CheckBox Content="Online" IsChecked="{Binding State.Online,Mode=OneWay}" IsEnabled="False"></CheckBox>
-                <CheckBox Content="Paused" IsChecked="{Binding State.Paused,Mode=OneWay}" IsEnabled="False"></CheckBox>
-                <CheckBox Content="Spectating" IsChecked="{Binding State.Spectating,Mode=OneWay}" IsEnabled="False"></CheckBox>
+                <CheckBox Content="Paused" IsChecked="{Binding Paused,Mode=OneWay}" IsEnabled="False"></CheckBox>
             </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <Label>Duration:</Label>
-                <TextBlock Text="{Binding State.Duration,Mode=OneWay}"></TextBlock>
-                <Label>Time left:</Label>
-                <TextBlock Text="{Binding State.TimeLeft,Mode=OneWay}"></TextBlock>
-            </StackPanel>
+            <ContentControl Content="{Binding Timer}">
+                <ContentControl.ContentTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Label>Duration:</Label>
+                            <TextBlock Text="{Binding Duration, Mode=OneWay}"></TextBlock>
+                            <Label>Time left:</Label>
+                            <TextBlock Text="{Binding TimeLeft, Mode=OneWay}"></TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ContentControl.ContentTemplate>
+            </ContentControl>
         </StackPanel>
+
+        <ContentControl Content="{Binding Weather}" Grid.Row="2" Grid.Column="1">
+            <ContentControl.ContentTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="LimeGreen" BorderThickness="2" CornerRadius="5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0">Weather:</Label>
+                        <TextBlock Text="{Binding Weather}" Grid.Row="0" Grid.Column="1" />
+                        <Label Grid.Row="1" Grid.Column="0">Track temperature:</Label>
+                        <TextBlock Text="{Binding TrackTemperature}" Grid.Row="1" Grid.Column="1" />
+                        <Label Grid.Row="2" Grid.Column="0">Air temperature:</Label>
+                        <TextBlock Text="{Binding AirTemperature}" Grid.Row="2" Grid.Column="1" />
+                    </Grid>
+                    </Border>
+                </DataTemplate>
+            </ContentControl.ContentTemplate>
+        </ContentControl>
+
+        <ContentControl Content="{Binding Track}" Grid.Row="2" Grid.Column="3">
+            <ContentControl.ContentTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="LimeGreen" BorderThickness="2" CornerRadius="5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0">Track:</Label>
+                        <TextBlock Text="{Binding Name}" Grid.Row="0" Grid.Column="1" />
+                        <Label Grid.Row="1" Grid.Column="0">Length:</Label>
+                        <TextBlock Text="{Binding Length}" Grid.Row="1" Grid.Column="1" />
+                    </Grid>
+                    </Border>
+                </DataTemplate>
+            </ContentControl.ContentTemplate>
+        </ContentControl>
     </Grid>
 </UserControl>

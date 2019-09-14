@@ -7,7 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "F1Telemetry", "F1Telemetry\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "F1TelemetryNetCore", "F1TelemetryNetCore\F1TelemetryNetCore.csproj", "{7543B54F-9DA8-491E-B39C-9DAF88991309}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "F1Telemetry.Core", "F1Telemetry.Core\F1Telemetry.Core.csproj", "{8857976E-814B-4A52-84F2-11C38FF95337}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "F1Telemetry.Core", "F1Telemetry.Core\F1Telemetry.Core.csproj", "{8857976E-814B-4A52-84F2-11C38FF95337}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "F1Telemetry.Core.Tests", "F1Telemetry.Core.Tests\F1Telemetry.Core.Tests.csproj", "{D90B2F65-D5AB-45FC-BA84-DA8A7C3BA265}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{8857976E-814B-4A52-84F2-11C38FF95337}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8857976E-814B-4A52-84F2-11C38FF95337}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8857976E-814B-4A52-84F2-11C38FF95337}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D90B2F65-D5AB-45FC-BA84-DA8A7C3BA265}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D90B2F65-D5AB-45FC-BA84-DA8A7C3BA265}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D90B2F65-D5AB-45FC-BA84-DA8A7C3BA265}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D90B2F65-D5AB-45FC-BA84-DA8A7C3BA265}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

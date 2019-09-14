@@ -1,0 +1,26 @@
+﻿<UserControl x:Class="F1TelemetryNetCore.RaceStandings"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:F1TelemetryNetCore"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <StackPanel Orientation="Vertical">
+        <DockPanel>
+            <TextBlock>Player's position</TextBlock>
+            <TextBlock Text="{Binding PlayerPosition}" />
+        </DockPanel>
+        <ListView SelectionMode="Single" ItemsSource="">
+        <ListView.View>
+            <GridView>
+                <GridViewColumn Header="Position" DisplayMemberBinding="{Binding Position}">
+                </GridViewColumn>
+                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"></GridViewColumn>
+                <GridViewColumn Header="Tyres" DisplayMemberBinding="{Binding Tyres}"></GridViewColumn>
+                <GridViewColumn Header="Time" DisplayMemberBinding="{Binding Time}"></GridViewColumn>
+            </GridView>
+        </ListView.View>
+        </ListView>
+    </StackPanel>
+</UserControl>

@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using F1Telemetry.Core.Observables;
+using System.Threading;
+using F1Telemetry.Core.SessionManagement;
+using F1Telemetry.Core.SessionManagement.Events;
 using F1TelemetryNetCore.Annotations;
 
 namespace F1TelemetryNetCore
@@ -12,44 +13,12 @@ namespace F1TelemetryNetCore
     {
         private DateTime _sessionStarted;
         private DateTime _sessionEnded;
-        private SessionState _state;
-        private TrackInfo _track;
-        private WeatherInfo _currentWeather;
+        private bool _paused;
+        private SessionTimerViewModel _timer;
+        private WeatherViewModel _weather;
+        private TrackViewModel _track;
 
         public ulong SessionId { get; }
-
-        public WeatherInfo CurrentWeather
-        {
-            get => _currentWeather;
-            private set
-            {
-                if (Equals(value, _currentWeather)) return;
-                _currentWeather = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public TrackInfo Track
-        {
-            get => _track;
-            private set
-            {
-                if (Equals(value, _track)) return;
-                _track = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public SessionState State
-        {
-            get => _state;
-            private set
-            {
-                if (Equals(value, _state)) return;
-                _state = value;
-                OnPropertyChanged();
-            }
-        }
 
         public DateTime SessionStarted
         {
@@ -73,35 +42,70 @@ namespace F1TelemetryNetCore
             }
         }
 
-        public SessionViewModel(ulong sessionId, IObservable<Event> sessionEvents)
+        public bool Paused
         {
-            SessionId = sessionId;
-            var subscription = sessionEvents.Subscribe(e =>
+            get => _paused;
+            set
             {
-                switch (e)
-                {
-                    case SessionEvent se:
-                    {
-                        if (se.EventType == SessionEvent.EventTypes.Start)
-                        {
-                            SessionStarted = se.TimeStamp;
-                        }
-                        else if (se.EventType == SessionEvent.EventTypes.End)
-                        {
-                            SessionEnded = SessionStarted.AddSeconds(se.SessionTime);
-                        }
-                        break;
-                    }
-                    case Session s:
-                    {
-                        CurrentWeather = s.Weather;
-                        Track = s.Track;
-                        State = s.State;
-                        break;
-                    }
+                if (value == _paused) return;
+                _paused = value;
+                OnPropertyChanged();
+            }
+        }
 
+        public SessionTimerViewModel Timer
+        {
+            get => _timer;
+            set
+            {
+                if (Equals(value, _timer)) return;
+                _timer = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public WeatherViewModel Weather
+        {
+            get => _weather;
+            set
+            {
+                if (Equals(value, _weather)) return;
+                _weather = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public TrackViewModel Track
+        {
+            get => _track;
+            set
+            {
+                if (Equals(value, _track)) return;
+                _track = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public SessionViewModel(Session session)
+        {
+            SessionId = session.SessionId;
+            session.LifecycleEvents.ObserveOn(SynchronizationContext.Current).Subscribe(le =>
+            {
+                switch (le)
+                {
+                    case SessionStart ss:
+                        SessionStarted = ss.TimeStamp;
+                        break;
+                    case SessionEnd se:
+                        SessionEnded = SessionStarted.AddSeconds(le.SessionTime);
+                        break;
+                    case SessionPause _: Paused = true; break;
+                    case SessionResume _: Paused = false; break;
                 }
             });
+            Timer = new SessionTimerViewModel(session.TimeLeftEvents, session.DurationEvents);
+            Weather = new WeatherViewModel(session.WeatherEvents);
+            Track = new TrackViewModel(session.TrackInfoEvents);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -110,6 +114,36 @@ namespace F1TelemetryNetCore
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected bool Equals(SessionViewModel other)
+        {
+            return SessionId == other.SessionId;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+
+            return Equals((SessionViewModel) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return SessionId.GetHashCode();
         }
     }
 }

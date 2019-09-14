@@ -61,7 +61,7 @@
                                 <TextBlock>
                                     <TextBlock.Text>
                                         <MultiBinding StringFormat="{}{0} ({1})">
-                                            <Binding Path="Track.Track"></Binding>
+                                            <Binding Path="Track.Name"></Binding>
                                             <Binding Path="SessionId"></Binding>
                                         </MultiBinding>
                                     </TextBlock.Text>

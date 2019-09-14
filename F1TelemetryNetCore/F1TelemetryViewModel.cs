@@ -15,9 +15,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using F1Telemetry.Core;
-using F1Telemetry.Core.Observables;
 using F1Telemetry.Core.Packets;
 using F1Telemetry.Core.Persistence;
+using F1Telemetry.Core.SessionManagement;
 using F1TelemetryNetCore.Annotations;
 using log4net;
 using log4net.Appender;
@@ -66,21 +66,27 @@ namespace F1TelemetryNetCore
                 }
                 catch { }
             });
-
             Sessions = new ObservableCollection<SessionViewModel>();
 
-            var observablePacketHandler = new ObservablePacketHandler();
-            observablePacketHandler.Events
-                .ObserveOn(SynchronizationContext.Current)
-                .GroupBy(e => e.SessionId)
-                .Select(sessionEvents => new SessionViewModel(sessionEvents.Key, sessionEvents))
-                .Subscribe(svm => Sessions.Add(svm));
+            var sessionEventsPacketHandler = new SessionEventsPacketHandler();
+            var sessionManager = new SessionManager(sessionEventsPacketHandler);
+            sessionManager.Sessions.ObserveOn(SynchronizationContext.Current).Select(s => new SessionViewModel(s)).Subscribe(svm =>
+            {
+                var i = Sessions.IndexOf(svm);
+                if (i == -1)
+                {
+                    Sessions.Add(svm);
+                }
+                else
+                {
+                    Sessions[i] = svm;
+                }
+            });
 
             var fileSavingPacketHandler = new FileWriterPacketHandler();
             ReplaySpeed = 1.0f;
             var delayHandler = new DelayPacketHandler(_delayScale);
-            var compositePacketHandler = new CompositePacketHandler(delayHandler, fileSavingPacketHandler, observablePacketHandler);
-
+            var compositePacketHandler = new CompositePacketHandler(delayHandler, fileSavingPacketHandler, sessionEventsPacketHandler);
 
             _parser = new PacketParser(compositePacketHandler);
             _dialog = new OpenFileDialog();
